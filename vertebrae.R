@@ -12,7 +12,7 @@ library(dplyr)
 library(lubridate)
 
 #Read in data
-setwd('C:\\Matias\\Analyses\\vertebrae collection')
+setwd('C:\\Matias\\Analyses\\Samples\\vertebrae collection')
 dat=read.csv('Fish_processor_age_sampling.csv',stringsAsFactors = F)
 
 #Manipulate data
