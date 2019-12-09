@@ -22,7 +22,8 @@ dat=dat %>% mutate(Species=substr(Specimen.No.,1,2),
                    Year=year(Date),
                    Month=month(Date),
                    Sex=ifelse(Sex=='',NA,Sex),
-                   Area=ifelse(grepl("Fatal Attraction",Comments),"Esperance","Albany"))%>%
+                   Area=ifelse(grepl("Fatal Attraction",Comments),"Esperance","Albany"),
+                   Gear=ifelse(grepl("LONGLINE",Comments),"Longline","Net"))%>%
             filter(!Species=="" & !Recorder=="")
 
 #plots
@@ -36,6 +37,7 @@ fun.plt=function(d)
   barplot(table(Sex,useNA = 'ifany'),main='Sex',col=2)
   barplot(table(10*round(IDL/10),useNA = 'ifany'),main=paste('IDL (n=',nrow(d),')',sep=""),col=2)
   barplot(table(Area,useNA = 'ifany'),main='Area',col=2)
+  barplot(table(Gear,useNA = 'ifany'),main='Gear',col=2)
   mtext("Frequency",2,outer=T,cex=1.5,line=-0.35)
   mtext(unique(Species),3,outer=T,cex=1.5,line=-1)
   detach(d)
