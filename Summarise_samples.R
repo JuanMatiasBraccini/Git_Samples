@@ -86,9 +86,10 @@ Genetic.Vertebrae.frozen=Genetic.Vertebrae.frozen%>%
                            Mid.Lat=ifelse(Area=='Albany',-35,ifelse(Area=='Esperance',-33.8,NA)),
                            Mid.Long=ifelse(Area=='Albany',117.9,ifelse(Area=='Esperance',121.9,NA)),
                            date=Date,
+                           Sex=Sex,
                            Data.set="Frozen.vertebrae")
 
-this=c('Data.set','date','COMMON_NAME','SCIENTIFIC_NAME','FL','Mid.Lat','Mid.Long')
+this=c('Data.set','date','COMMON_NAME','SCIENTIFIC_NAME','FL','Mid.Lat','Mid.Long','SEX')
 Dat=rbind(Genetic.biol.store.room[,this],
           Genetic.PA.samples[,this],
           Genetic.Vertebrae.frozen[,this])
@@ -107,7 +108,8 @@ tab=Dat%>%
 
 
 Dat%>%
-  filter(COMMON_NAME%in%c('Whiskery shark','Dusky shark','Gummy Shark','Sandbar shark'))%>%
+  filter(!is.na(SEX) & COMMON_NAME%in%c('Whiskery shark','Dusky shark','Gummy Shark','Sandbar shark'))%>%
   ggplot(aes(x=FL, fill=COMMON_NAME)) +
-  geom_density(alpha=0.4)
-ggsave("C:/Matias/Analyses/Samples/gen_size.dist.tiff", width = 8,height = 8, dpi = 300,compression = "lzw")
+  geom_density(alpha=0.4) +
+  facet_grid(. ~ SEX)
+ggsave("C:/Matias/Analyses/Samples/gen_size.dist.tiff", width = 12,height = 8, dpi = 300,compression = "lzw")
