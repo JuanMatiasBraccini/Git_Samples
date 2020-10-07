@@ -104,3 +104,10 @@ tab=Dat%>%
          sd.size=sd(FL,na.rm=T))%>%
   data.frame()
 
+
+
+Dat%>%
+  filter(COMMON_NAME%in%c('Whiskery shark','Dusky shark','Gummy Shark','Sandbar shark'))%>%
+  ggplot(aes(x=FL, fill=COMMON_NAME)) +
+  geom_density(alpha=0.4)
+ggsave("C:/Matias/Analyses/Samples/gen_size.dist.tiff", width = 8,height = 8, dpi = 300,compression = "lzw")
