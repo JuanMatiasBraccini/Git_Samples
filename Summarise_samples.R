@@ -9,6 +9,7 @@ source("C:/Matias/Analyses/SOURCE_SCRIPTS/Git_other/Source_Shark_bio.R")
 
 
 #Biological storage room
+library(tidyverse)
 library(dplyr)
 library(readxl)
 Biol.storage.room=read_excel("C:/Matias/Data/Shark_bio/Biol store samples.xlsx")
@@ -18,17 +19,19 @@ Vertebrae.frozen=read.csv('U:/Shark/Fish_processor_age_sampling.csv',stringsAsFa
 
 
 #Dried vertebrae
-#Vertebrae.dried=   missing, from Santi
+Vertebrae.dried_boat=read_excel("C:/Matias/Data/Shark_bio/Santi_historic.vertebrae_General sample data.xlsx",
+                           sheet='Boat')
+Vertebrae.dried_new=read_excel("C:/Matias/Data/Shark_bio/Santi_historic.vertebrae_General sample data.xlsx",
+                                sheet='NEW')
 
 
-# Procedure section ------------------------------------------------------------
+
+# Genetic samples ------------------------------------------------------------
 DATA=DATA%>%mutate(BAG_NO=tolower(BAG_NO),
                    BAG_NO.match=paste(BAG_NO,SPECIES),
                    BAG_NO=ifelse(BAG_NO=='',NA,BAG_NO),
                    FinClipFlag=tolower(FinClipFlag),
                    MuscleFlag=tolower(MuscleFlag))
-
-
 
 #Genetic samples in biological store room
 Genetic.biol.store.room=Biol.storage.room%>%
@@ -55,8 +58,6 @@ Genetic.PA.samples=DATA[grep("PA", DATA$SHEET_NO), ]%>%
                       mutate(VERT_SAMPL=tolower(VERT_SAMPL))%>%
                       filter(year>=2020 & VERT_SAMPL=='yes')%>%
                       mutate(Data.set="ParksAustralia.vertebrae")
-
-
 
 #Genetics from tissue from frozen vertebrae
 SP.names=DATA%>%distinct(SPECIES,.keep_all = T)%>%
@@ -105,11 +106,72 @@ tab=Dat%>%
          sd.size=sd(FL,na.rm=T))%>%
   data.frame()
 
-
-
 Dat%>%
   filter(!is.na(SEX) & COMMON_NAME%in%c('Whiskery shark','Dusky shark','Gummy Shark','Sandbar shark'))%>%
   ggplot(aes(x=FL, fill=COMMON_NAME)) +
   geom_density(alpha=0.4) +
   facet_grid(. ~ SEX)
 ggsave("C:/Matias/Analyses/Samples/gen_size.dist.tiff", width = 12,height = 8, dpi = 300,compression = "lzw")
+
+
+# Vertebrae samples ------------------------------------------------------------
+#Historic dried vertebrae
+Vertebrae.dried_boat=Vertebrae.dried_boat%>%
+              rename(BAG_NO="BAG NO",
+                     Box="Box Location")%>%
+              mutate(Available=ifelse(Available=="???",NA,Available),
+                     Available=tolower(Available),
+                     SEX=tolower(SEX),
+                     BAG_NO=tolower(BAG_NO),
+                     Data.set='historic_boat')%>%
+              filter(Available=='yes')
+
+Vertebrae.dried_new=Vertebrae.dried_new%>%
+              rename(BAG_NO="BAG NO",
+                     Box="Box Location")%>%
+              mutate(Available=ifelse(Available=="???",NA,Available),
+                     Available=tolower(Available),
+                     SEX=tolower(SEX),
+                     BAG_NO=tolower(BAG_NO),
+                     Data.set='historic_new')%>%
+              filter(Available=='yes')
+
+this.var=c('SHEET_NO','LINE_NO','UNIQUE_ID','SPECIES','TL','FL','SEX','BAG_NO','Box')
+Vertebrae.dried=rbind(Vertebrae.dried_boat%>%dplyr::select(all_of(this.var)),
+                      Vertebrae.dried_new%>%dplyr::select(all_of(this.var)))%>%
+                  mutate(BAG_NO.match=paste(BAG_NO,SPECIES))%>%
+                  left_join(SP.names,by='SPECIES')
+Vertebrae.dried=Vertebrae.dried%>%
+                  left_join(DATA%>%
+                              filter(BAG_NO%in%unique(Vertebrae.dried$BAG_NO) & !is.na(BAG_NO))%>%
+                              dplyr::select(BAG_NO.match,date,year,Mid.Lat,Mid.Long,zone),by='BAG_NO.match')
+  
+
+Vertebrae.dried%>%
+  filter(!is.na(SEX) & COMMON_NAME%in%c('Whiskery shark','Dusky shark','Gummy Shark','Sandbar shark'))%>%
+  filter(SEX!='?')%>%
+  ggplot(aes(x=FL, fill=COMMON_NAME)) +
+  geom_density(alpha=0.4) +
+  facet_grid(. ~ SEX)
+ggsave("C:/Matias/Analyses/Samples/vertebrae_size.dist.tiff", width = 12,height = 8, dpi = 300,compression = "lzw")
+
+sort(table(Vertebrae.dried$COMMON_NAME))
+
+Tab.age.obs_yr=Vertebrae.dried%>%
+  filter(COMMON_NAME%in%c('Whiskery shark','Dusky shark','Gummy Shark','Sandbar shark'))%>%
+  group_by(COMMON_NAME,year)%>%
+  tally%>%
+  spread(COMMON_NAME,n,fill=0)
+
+Tab.age.obs_yr.zone=Vertebrae.dried%>%
+  filter(COMMON_NAME%in%c('Whiskery shark','Dusky shark','Gummy Shark','Sandbar shark'))%>%
+  group_by(COMMON_NAME,year,zone)%>%
+  tally%>%
+  spread(COMMON_NAME,n,fill=0)
+
+
+#these are not in Boat bio but have a location and date
+Missing=Vertebrae.dried_new%>%
+  filter(SPECIES%in%c("WH","GM","TK","BW"))%>%
+  dplyr::select(Box,SHEET_NO,LINE_NO,UNIQUE_ID,ID2,ID3,
+                SPECIES,TL,FL,SEX,BAG_NO,Vessel,Location,Date)
