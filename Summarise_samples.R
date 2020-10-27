@@ -86,11 +86,14 @@ Genetic.Vertebrae.frozen=Genetic.Vertebrae.frozen%>%
                            FL=ifelse(is.na(FL),IDL*slope.FL+inter.FL,FL),
                            Mid.Lat=ifelse(Area=='Albany',-35,ifelse(Area=='Esperance',-33.8,NA)),
                            Mid.Long=ifelse(Area=='Albany',117.9,ifelse(Area=='Esperance',121.9,NA)),
-                           date=Date,
-                           Sex=Sex,
-                           Data.set="Frozen.vertebrae")
+                           Data.set="Frozen.vertebrae")%>%
+                    rename(date=Date,
+                           SEX=Sex,
+                           BAG_NO=Specimen.No.)
 
-this=c('Data.set','date','COMMON_NAME','SCIENTIFIC_NAME','FL','Mid.Lat','Mid.Long','SEX')
+
+
+this=c('Data.set','date','COMMON_NAME','SCIENTIFIC_NAME','FL','Mid.Lat','Mid.Long','SEX','BAG_NO')
 Dat=rbind(Genetic.biol.store.room[,this],
           Genetic.PA.samples[,this],
           Genetic.Vertebrae.frozen[,this])
@@ -113,6 +116,14 @@ Dat%>%
   facet_grid(. ~ SEX)
 ggsave("C:/Matias/Analyses/Samples/gen_size.dist.tiff", width = 12,height = 8, dpi = 300,compression = "lzw")
 
+
+
+#Table of genetic samples by data set and species
+T1=Dat%>%
+  group_by(Data.set,COMMON_NAME)%>%
+  tally()%>%
+  spread(Data.set,n,fill=0)%>%
+  data.frame
 
 # Vertebrae samples ------------------------------------------------------------
 #Historic dried vertebrae
