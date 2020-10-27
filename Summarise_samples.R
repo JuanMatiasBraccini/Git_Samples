@@ -124,6 +124,8 @@ T1=Dat%>%
   tally()%>%
   spread(Data.set,n,fill=0)%>%
   data.frame
+write.csv(T1,'C:/Matias/Analyses/Samples/Gen.samples.in.storage.csv',row.names=F)
+
 
 # Vertebrae samples ------------------------------------------------------------
 #Historic dried vertebrae
