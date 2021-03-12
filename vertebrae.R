@@ -1,6 +1,7 @@
 #Script for tallying collection of vertebrae from fish processors
 
 #best way of identifying logbook trip:
+# Identify trips from combining logbook data and VMS
 #Nick: "Re the trip info, are you meaning the logbook returns which we could get from Anja (fishing block, weights etc), or VMS, where we would put in a data request form for each trip. That would give us gps of where they went fishing.
 # Sampling date from the datasheet would be a day or 2 ahead of the trip finish date"
 #Tim: "logbook return daily sheets (with block numbers) will be ahead of unload dates , by many days in some instances. Available from Anja.

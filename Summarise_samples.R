@@ -17,6 +17,12 @@ Biol.storage.room=read_excel("C:/Matias/Data/Shark_bio/Biol store samples.xlsx")
 #Vertebrae in freezer
 Vertebrae.frozen=read.csv('U:/Shark/Fish_processor_age_sampling.csv',stringsAsFactors = F)
 
+  #modify species for sandbar samples genetically identified as whiskery shark by Brenton Pember
+Vertebrae.frozen=Vertebrae.frozen%>%
+  mutate(Species=substr(Specimen.No.,1,2),
+         Species=ifelse(Specimen.No.%in%c("TK190315-28","TK190409-8","TK190429-06"),"WH",
+                        Species))%>%
+  filter(!Specimen.No.=="")
 
 #Dried vertebrae
 Vertebrae.dried_boat=read_excel("C:/Matias/Data/Shark_bio/Santi_historic.vertebrae_General sample data.xlsx",
@@ -63,8 +69,7 @@ Genetic.PA.samples=DATA[grep("PA", DATA$SHEET_NO), ]%>%
 SP.names=DATA%>%distinct(SPECIES,.keep_all = T)%>%
   dplyr::select(SPECIES,COMMON_NAME,SCIENTIFIC_NAME)
 Genetic.Vertebrae.frozen=Vertebrae.frozen %>%
-            mutate(Species=substr(Specimen.No.,1,2),
-                   Date=as.POSIXct(Sampling.date,format="%d/%m/%Y"),
+            mutate(Date=as.POSIXct(Sampling.date,format="%d/%m/%Y"),
                    Year=year(Date),
                    Month=month(Date),
                    Sex=ifelse(Sex=='',NA,Sex),
