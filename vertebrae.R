@@ -11,9 +11,10 @@
 
 library(dplyr)
 library(lubridate)
+handl_OneDrive=function(x)paste('C:/Users/myb/OneDrive - Department of Primary Industries and Regional Development/Matias',x,sep='/')
 
 #Read in data
-setwd('C:\\Matias\\Analyses\\Samples\\vertebrae collection')
+setwd(handl_OneDrive('Analyses\\Samples\\vertebrae collection'))
 dat=read.csv('U:/Shark/Fish_processor_age_sampling.csv',stringsAsFactors = F)
 #dat=read.csv('Fish_processor_age_sampling.csv',stringsAsFactors = F)  #offline
 

@@ -2,17 +2,18 @@
 
 
 # Data section ------------------------------------------------------------
+handl_OneDrive=function(x)paste('C:/Users/myb/OneDrive - Department of Primary Industries and Regional Development/Matias',x,sep='/')
 
 #Sharks data base 
 User="Matias"
-source("C:/Matias/Analyses/SOURCE_SCRIPTS/Git_other/Source_Shark_bio.R")
+source(handl_OneDrive("Analyses/SOURCE_SCRIPTS/Git_other/Source_Shark_bio.R"))
 
 
 #Biological storage room
 library(tidyverse)
 library(dplyr)
 library(readxl)
-Biol.storage.room=read_excel("C:/Matias/Data/Shark_bio/Biol store samples.xlsx")
+Biol.storage.room=read_excel(handl_OneDrive("Data/Shark_bio/Biol store samples.xlsx"))
 
 #Vertebrae in freezer
 Vertebrae.frozen=read.csv('U:/Shark/Fish_processor_age_sampling.csv',stringsAsFactors = F)
@@ -25,9 +26,9 @@ Vertebrae.frozen=Vertebrae.frozen%>%
   filter(!Specimen.No.=="")
 
 #Dried vertebrae
-Vertebrae.dried_boat=read_excel("C:/Matias/Data/Shark_bio/Santi_historic.vertebrae_General sample data.xlsx",
+Vertebrae.dried_boat=read_excel(handl_OneDrive("Data/Shark_bio/Santi_historic.vertebrae_General sample data.xlsx"),
                            sheet='Boat')
-Vertebrae.dried_new=read_excel("C:/Matias/Data/Shark_bio/Santi_historic.vertebrae_General sample data.xlsx",
+Vertebrae.dried_new=read_excel(handl_OneDrive("Data/Shark_bio/Santi_historic.vertebrae_General sample data.xlsx"),
                                 sheet='NEW')
 
 
@@ -119,7 +120,7 @@ Dat%>%
   ggplot(aes(x=FL, fill=COMMON_NAME)) +
   geom_density(alpha=0.4) +
   facet_grid(. ~ SEX)
-ggsave("C:/Matias/Analyses/Samples/gen_size.dist.tiff", width = 12,height = 8, dpi = 300,compression = "lzw")
+ggsave(handl_OneDrive("Analyses/Samples/gen_size.dist.tiff"), width = 12,height = 8, dpi = 300,compression = "lzw")
 
 
 
@@ -129,7 +130,7 @@ T1=Dat%>%
   tally()%>%
   spread(Data.set,n,fill=0)%>%
   data.frame
-write.csv(T1,'C:/Matias/Analyses/Samples/Gen.samples.in.storage.csv',row.names=F)
+write.csv(T1,handl_OneDrive('Analyses/Samples/Gen.samples.in.storage.csv'),row.names=F)
 
 
 # Vertebrae samples ------------------------------------------------------------
@@ -171,7 +172,7 @@ Vertebrae.dried%>%
   ggplot(aes(x=FL, fill=COMMON_NAME)) +
   geom_density(alpha=0.4) +
   facet_grid(. ~ SEX)
-ggsave("C:/Matias/Analyses/Samples/vertebrae_size.dist.tiff", width = 12,height = 8, dpi = 300,compression = "lzw")
+ggsave(handl_OneDrive("Analyses/Samples/vertebrae_size.dist.tiff"), width = 12,height = 8, dpi = 300,compression = "lzw")
 
 sort(table(Vertebrae.dried$COMMON_NAME))
 
