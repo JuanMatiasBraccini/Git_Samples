@@ -13,12 +13,16 @@ library(dplyr)
 library(lubridate)
 if(!exists('handl_OneDrive')) source('C:/Users/myb/OneDrive - Department of Primary Industries and Regional Development/Matias/Analyses/SOURCE_SCRIPTS/Git_other/handl_OneDrive.R')
 
-#Read in data
+# Read in data-------------------------------------------------------------------------
 setwd(handl_OneDrive('Analyses\\Samples\\vertebrae collection'))
 dat=read.csv('U:/Shark/Fish_processor_age_sampling.csv',stringsAsFactors = F)
 #dat=read.csv('Fish_processor_age_sampling.csv',stringsAsFactors = F)  #offline
 
-#Manipulate data
+# Input parameters-------------------------------------------------------------------------
+IDL.to.FL.conversion=data.frame(Species=c("BW","GM","WH","TK"),
+                                intercept=c(10.604,16.369,20.284,14.999),
+                                slope=c(1.9881,1.7181,1.7207,1.6541))
+# Manipulate data-------------------------------------------------------------------------
 dat=dat %>% mutate(Species=substr(Specimen.No.,1,2),
                    Date=as.POSIXct(Sampling.date,format="%d/%m/%Y"),
                    Year=year(Date),
@@ -26,9 +30,29 @@ dat=dat %>% mutate(Species=substr(Specimen.No.,1,2),
                    Sex=ifelse(Sex=='',NA,Sex),
                    Area=ifelse(grepl("Fatal Attraction",Comments),"Esperance","Albany"),
                    Gear=ifelse(grepl("LONGLINE",Comments),"Longline","Net"))%>%
-            filter(!Species=="" & !Recorder=="")
+            filter(!Species=="" & !Recorder=="")%>%
+            left_join(IDL.to.FL.conversion,by="Species")%>%
+            mutate(FL=ifelse(is.na(FL),IDL*slope+intercept,FL))
 
-#plots
+
+
+# Plots-------------------------------------------------------------------------
+
+#reconstructed FL
+n.tab=dat%>%group_by(Species)%>%tally()%>%rename(N=n)
+dat%>%
+  mutate(FL.5=5*round(FL/5))%>%
+  group_by(Species,FL.5)%>%
+  tally()%>%
+  left_join(n.tab,by='Species')%>%
+  mutate(LBL=paste( Species," (n=",N,")",sep=""))%>%
+  ggplot(aes(x=FL.5,y=n,fill=Species)) + 
+  geom_bar(position="dodge", stat="identity")+
+  facet_wrap(~LBL)
+ggsave("Reconstructed_FL.tiff",width = 10,height = 8,compression = "lzw")
+
+
+#sample summaries
 fun.plt=function(d)
 {
   d=d[order(d$Date),]
